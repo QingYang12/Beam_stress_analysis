@@ -1,0 +1,1088 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.0-beta2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/popper.js/1.13.0-next.1/esm/popper.min.js"></script>
+    
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-table/1.18.2/bootstrap-table.js"></script>
+	<link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-table/1.18.2/bootstrap-table.css" rel="stylesheet">
+	<link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.bootcss.com/echarts/4.1.0.rc2/echarts.min.js"></script><script crossorigin="anonymous" integrity="sha512-t9GZbGKCH5MuYUFsq5AdrhllT0kdnc2fNMizKDgLXBBXgHP2dXxjRPOzYJauAXW9OXLlSYELUqWD30k7cb0Mkg==" src="https://lib.baomitu.com/echarts/5.0.2/echarts.min.js"></script>
+  </head>
+  <body style="background-image:url('background03.jpg');background-size:100% 100%;">
+	<div id="header" style="border: 0px solid #A9C9E2;width:100%;height:100px;background-image:url('./background06.jpg');background-size:100% 100%;" align='center'>
+			<h1><font  style ="font-family:'STCaiyun';font-weight:bold;" >横梁杆件受力分析</font></h1>
+	</div>
+	<div id="parentDiv" style="width:100%;height:1200px;float:left">
+		<!--提示蒙版-->
+		<div id="wait" style="width:300px;height:200px;z-index:2;display:none;position:fixed;top:40%;left:40%;background-image:url('./wait2.gif');background-size:100% 100%;" align="center">
+		</div>
+		<div id="side1" style="width:300px;height:100px;z-index:2;position:fixed;top:0%;left:75%;background-image:url('./show4.gif');background-size:100% 100%;" align="center"  >
+		</div>
+		<div id="side2" style="width:100px;height:100px;z-index:2;position:absolute;top:0%;left:10%;background-image:url('./edit1.png');background-size:100% 100%;" align="center"  >
+		</div>
+		<div id="side3" style="width:50px;height:50px;z-index:2;position:absolute;top:0%;left:58%;background-image:url('./edit3.png');background-size:100% 100%;" align="center"  >
+		</div>
+		<div id="side4" style="width:100px;height:100px;z-index:2;position:absolute;top:0%;left:60%;background-image:url('./edit5.png');background-size:100% 100%;" align="center"  >
+		</div>
+		<!--置顶蒙版-->
+		<div id="top" style="width:200px;height:200px;z-index:2;position:fixed;top:80%;left:90%;background-image:url('./side2.gif');background-size:100% 100%;" align="center"  onclick="gotop();">
+		</div>
+		<div   id="draw_Div" style="border: 1px solid #A9C9E2;width:70%;height:100%;float:left;overflow-x:scroll;z-index:0;">
+			
+			<legend>&nbsp;&nbsp;<font  style ="font-weight:bold;" >横梁图形展示</font></legend>
+			
+			<legend>&nbsp;&nbsp;<font  style ="" >主视图</font></legend>
+			<div id="container" style="border: 1px solid #A9C9E2;width:100%;height:650px;overflow-x:scroll;z-index:1;">
+				<canvas id="cavsElem" >
+					你的浏览器不支持canvas，请升级浏览器
+				</canvas>
+			</div>
+			<legend>&nbsp;&nbsp;侧视图</legend>
+			<div id="container2parent" style="border: 1px solid #A9C9E2;width:100%;height:230px;overflow-x:scroll;">
+				<img src="./edit6.png" style="width:100%;height:100%;"/>
+			</div>
+			<legend>&nbsp;&nbsp;横梁受力分布侧视图图像</legend>
+			<div id="echarts_container_parent_side" style="border: 1px solid #A9C9E2;width:100%;height:700px;overflow-x:scroll;">
+				<img src="./edit6.png" style="width:30%;height:70%;"/>
+				<font  style ="font-family:'STCaiyun';font-weight:bold;" >输入参数后开始分析</font>
+			</div>
+			<legend>&nbsp;&nbsp;横梁受力分布正视图图像</legend>
+			<div id="echarts_container_parent" style="border: 1px solid #A9C9E2;width:100%;height:700px;overflow-x:scroll;">
+				<img src="./edit6.png" style="width:30%;height:70%;"/>
+				<font  style ="font-family:'STCaiyun';font-weight:bold;" >输入参数后开始分析</font>
+			</div>
+		</div>
+		<div   id="param_Div" style="border: 1px solid #A9C9E2;width:30%;height:100%;float:left;">
+			<form class="form-horizontal">
+				<fieldset>
+					<legend>&nbsp;&nbsp;横梁参数定义</legend>
+					<div class="control-group">
+						<!--横梁具体参数设置-->
+						<div >
+							<label class="control-label" for="input02">&nbsp;&nbsp;横梁具体参数设置:</label>
+							<div id="addone" style="display:none;position:absolute; left:95%;" onclick='addTableRow_rod()'>
+								</br>
+								<span class="glyphicon glyphicon-plus" style="color:#1890FF">新增横梁</span>
+							</div>
+						</div>
+						<table id="datatab_rod" class="table table-striped table-bordered table-hover"  data-show-columns="false"></table>
+						<!--受力具体参数设置-->
+						<div >
+							<label class="control-label" for="input02">&nbsp;&nbsp;受力具体参数设置:</label>
+							<div id="addtwo" style="display:none;position:absolute; left:95%;" onclick='addTableRow_power()'>
+								</br>
+								<span class="glyphicon glyphicon-plus" style="color:#1890FF">新增受力</span>
+							</div>
+						</div>
+						<table id="datatab_power" class="table table-striped table-bordered table-hover"  data-show-columns="false"></table>
+						<!--控件具体点位参数设置-->
+						<div >
+							<label class="control-label" for="input02">&nbsp;&nbsp;具体点位参数设置:</label>
+						</div>
+						<div class="form-group">
+							<label for="firstname" class="col-sm-3 control-label">杆件  编号:</label>
+							<div class="col-sm-3">
+							  <input type="text" class="form-control" id="force_rod_No" placeholder="请输入">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="firstname" class="col-sm-3 control-label">x坐标:</label>
+							<div class="col-sm-3">
+							  <input type="text" class="form-control" id="force_x" placeholder="请输入">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="firstname" class="col-sm-3 control-label">y坐标:</label>
+							<div class="col-sm-3">
+							  <input type="text" class="form-control" id="force_y" placeholder="请输入">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="firstname" class="col-sm-3 control-label">z坐标:</label>
+							<div class="col-sm-3">
+							  <input type="text" class="form-control" id="force_z" placeholder="请输入">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="firstname" class="col-sm-3 control-label">分析受力:</label>
+							<div class="col-sm-3">
+							  <button type="button" class="btn btn-primary" onclick='force_analysis()'>对该点进行受力分析</button>
+							</div>
+						</div>
+						<!--文本显示-->
+						<div class="card">
+						  <div class="card-header">
+							<label class="control-label" for="dataspan">结果预览:切应力</label>
+						  </div>
+						  <div id="dataspan" class="card-body">
+						  0
+						  </div>
+						  <div class="card-header">
+							<label class="control-label" for="dataspan">结果预览:正应力</label>
+						  </div>
+						  <div id="dataspan2" class="card-body">
+							0
+						  </div>
+						</div>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+	<div/>
+  </body>
+  <script>
+/*1.初始化table*/
+		//声明全局变量
+		
+		var extension={
+				rod_jsondata:[],
+				power_jsondata:[],
+			};
+		var unit=10;	
+		var rodDict=[{name:"圆柱",code:"cylinder"},{name:"圆环",code:"pipe"}];   //杆件类型
+		var powerDict=[{name:"局部力",code:"point"},{name:"范围力",code:"scope"}];   //力量类型
+		
+		//杆件初始化参数
+		var initObj={
+			   data:[],   //datalist 即为需要的数据
+			   toolbar:'#toolbar',
+			   dataType:'json',
+			   columns: [//1.杆件类型 2.长L 3.半径R/ 4.宽 b 5高 h 
+							{
+								field: 'rod_NO',
+								title: '杆件编号',
+								width: 10,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									return value;
+								},
+							},
+						   {
+								field: 'rod_type',
+								title: '  杆件类型',
+								width: 50,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									//rodDict  杆件类型
+									var dictlist=rodDict;
+									var data=value;
+									var id="rod_type_select_"+index;
+									var field='rod_type';
+									var result = "";
+									result+="<select class='form-control selectpicker' style='width:100%;display:inline;' id='"+id+"' name='rod_type_select' selected='"+data+"' onBlur='οnchange_value(\""+id+"\",\""+field+"\","+index+")'>";
+									//添加option
+									var opts = "";
+									for(var i=0;i<=dictlist.length-1;i++){
+										var selected="";
+										if(data==dictlist[i].code){//选中值
+											selected="selected='selected'";
+										}else{
+											selected="";
+										}
+										opts += "<option value='"+dictlist[i].code+"' "+selected+">"+dictlist[i].name+"</option>";
+									}
+									result+=opts+"</select>"
+									return result;
+								},
+							},
+							
+							{
+								field: 'rod_length',
+								title: '杆长L /cm',
+								width: 50,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									var data = value;
+									var id="rod_length_input_"+index;
+									var field='rod_length';
+									var result = "";
+									result+="<input class='form-control' style='width:100%;display:inline;' id='"+id+"' name='rod_length_input' value='"+data+"'  onBlur='οnchange_value(\""+id+"\",\""+field+"\","+index+")'/>";
+									return result;
+								},
+							},
+							{
+								field: 'rod_R',
+								title: '半径R /cm',
+								width: 50,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									var data = value;
+									var id="rod_R_input_"+index;
+									var field='rod_R';
+									var result = "";
+									result+="<input class='form-control' style='width:100%;display:inline;' id='"+id+"' name='rod_length_input' value='"+data+"'  onBlur='οnchange_value(\""+id+"\",\""+field+"\","+index+")'/>";
+									return result;
+								},
+							},
+							{
+								field: 'rod_W',
+								title: '内径b /cm',
+								width: 50,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									var data = value;
+									var id="rod_W_input_"+index;
+									var field='rod_W';
+									var result = "";
+									result+="<input class='form-control' style='width:100%;display:inline;' id='"+id+"' name='rod_length_input' value='"+data+"'  onBlur='οnchange_value(\""+id+"\",\""+field+"\","+index+")'/>";
+									return result;
+								},
+							},
+							{
+								field: 'operation',
+								title: '操作',
+								width: 120,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									var id = value;
+									var result = "";
+									result+="<span class='glyphicon glyphicon-plus' style='color:#1890FF' onclick='addTableRow_rod()'></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class='glyphicon glyphicon-minus' style='color:#1890FF' onclick='deleteTableRow_rod("+index+")'></span>";
+									return result;
+								},
+							}
+						],
+				onDblClickCell: function(field, value, row, $element) {
+					/*$element.attr('contenteditable', true);
+					$element.blur(function() {
+						let index = $element.parent().data('index');
+						let tdValue = $element.html();
+
+						saveData(index, field, tdValue);
+					})*/
+				}
+			 }
+			 
+		//力量初始化参数	 
+		var initObj2={
+			   data:[],   //datalist 即为需要的数据
+			   toolbar:'#toolbar',
+			   dataType:'json',
+			   columns: [
+							{
+								field: 'power_NO',
+								title: '受力编号',
+								width: 10,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									var data = value;
+									var id="power_NO_input_"+index;
+									var field='power_NO';
+									var result = ""+index;
+									return result;
+								},
+							},
+						   {
+								field: 'power_type',
+								title: '  受力类型',
+								width: 50,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									
+									var dictlist=powerDict;
+									var data=value;
+									var id="power_type_select_"+index;
+									var field='power_type';
+									var result = "";
+									result+="<select class='form-control selectpicker' style='width:100%;display:inline;' id='"+id+"' name='power_type_select' selected='"+data+"' onBlur='οnchange_value2(\""+id+"\",\""+field+"\","+index+")'>";
+									//添加option
+									var opts = "";
+									for(var i=0;i<=dictlist.length-1;i++){
+										var selected="";
+										if(data==dictlist[i].code){//选中值
+											selected="selected='selected'";
+										}else{
+											selected="";
+										}
+										opts += "<option value='"+dictlist[i].code+"' "+selected+">"+dictlist[i].name+"</option>";
+									}
+									result+=opts+"</select>"
+									return result;
+								},
+							},
+							{
+								field: 'power_amount',
+								title: '受力大小 /N',
+								width: 50,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									var data = value;
+									var id="power_amount_input_"+index;
+									var field='power_amount';
+									var result = "";
+									result+="<input class='form-control' style='width:100%;display:inline;' id='"+id+"' name='power_amount_input' value='"+data+"'  onBlur='οnchange_value2(\""+id+"\",\""+field+"\","+index+")'/>";
+									return result;
+								},
+							},
+							{
+								field: 'power_x1',
+								title: '受力: X1',
+								width: 50,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									var data = value;
+									var id="power_x1_input_"+index;
+									var field='power_x1';
+									var result = "";
+									result+="<input class='form-control' style='width:100%;display:inline;' id='"+id+"' name='power_x1_input' value='"+data+"'  onBlur='οnchange_value2(\""+id+"\",\""+field+"\","+index+")'/>";
+									return result;
+								},
+							},
+							{
+								field: 'power_x2',
+								title: '受力: X2',
+								width: 50,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									var data = value;
+									var id="power_x2_input_"+index;
+									var field='power_x2';
+									var result = "";
+									result+="<input class='form-control' style='width:100%;display:inline;' id='"+id+"' name='power_x2_input' value='"+data+"'  onBlur='οnchange_value2(\""+id+"\",\""+field+"\","+index+")'/>";
+									return result;
+								},
+							},
+							{
+								field: 'operation',
+								title: '操作',
+								width: 120,
+								align: 'center',
+								valign: 'middle',
+								formatter:function (value, row, index) {
+									var id = value;
+									var result = "";
+									result+="<span class='glyphicon glyphicon-plus' style='color:#1890FF' onclick='addTableRow_power()'></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class='glyphicon glyphicon-minus' style='color:#1890FF' onclick='deleteTableRow_power("+index+")'></span>";
+									return result;
+								},
+							}
+						],
+				onDblClickCell: function(field, value, row, $element) {
+					/*$element.attr('contenteditable', true);
+					$element.blur(function() {
+						let index = $element.parent().data('index');
+						let tdValue = $element.html();
+
+						saveData(index, field, tdValue);
+					})*/
+				}
+			 }
+			var option = {//option.xAxis.data   option.yAxis.data   option.series[0].data
+					title: {
+						text: " "
+					},
+					tooltip: {
+						position: 'top'
+					},
+					animation: false,
+					grid: {
+						height: '50%',
+						top: '10%'
+					},
+					xAxis: {
+						type: 'category',
+						data: [],
+						splitArea: {
+							show: true
+						}
+					},
+					yAxis: {
+						type: 'category',
+						data: [],
+						splitArea: {
+							show: true
+						}
+					},
+					visualMap: {
+						min: 0,
+						max: 10,
+						calculable: true,
+						orient: 'horizontal',
+						left: 'center',
+						bottom: '15%'
+					},
+					series: [{
+						name: '内应力分布图',
+						type: 'heatmap',
+						data: [],
+						label: {
+							show: false
+						},
+						emphasis: {
+							itemStyle: {
+								shadowBlur: 10,
+								shadowColor: 'rgba(0, 0, 0, 0.5)'
+							}
+						}
+					}]
+				};
+//////////////////////////////////////////////////////函数域/////////////////////////////////////////////////////////////////////////////		
+/*2.表单操作函数*/
+		//更新某一列
+		function saveData(index, field, value) {
+			$('#datatab_rod').bootstrapTable('updateCell', {
+				index: index,       //行索引
+				field: field,       //列名
+				value: value        //cell值
+			})
+		}
+		//杆件 表格增加行 +
+		function addTableRow_rod(){
+			var no=""+extension.rod_jsondata.length;
+			var data = {'rod_NO': no,'rod_type': 'cylinder', 'rod_length': '', 'rod_R': '',  'rod_W': '', 'operation': ''};
+			if(extension.rod_jsondata==undefined){
+				extension.rod_jsondata=[];
+			}
+			extension.rod_jsondata.push(data);
+			initObj.data=extension.rod_jsondata;
+			$('#datatab_rod').bootstrapTable('destroy');
+			$('#datatab_rod').bootstrapTable(initObj);
+			addoneVisable();
+			viewflush();
+			 
+		}
+		//杆件 表格删除行 -
+		function deleteTableRow_rod(index){
+			extension.rod_jsondata.splice(index, 1);
+			initObj.data=extension.rod_jsondata;
+			$('#datatab_rod').bootstrapTable('destroy');
+			$('#datatab_rod').bootstrapTable(initObj);
+			addoneVisable();
+			viewflush();
+		}
+		//力量 表格增加行 +
+		function addTableRow_power(){
+			//var count = $('#datatab_rod').bootstrapTable('getData').length;
+			var no=""+extension.power_jsondata.length;
+			var data = {'power_NO': no, 'power_type': 'point', 'power_amount': '', 'power_x1': '', 'power_x2': '', 'operation': ''};
+			if(extension.power_jsondata==undefined){
+				extension.power_jsondata=[];
+			}
+			extension.power_jsondata.push(data);
+			initObj2.data=extension.power_jsondata;
+			$('#datatab_power').bootstrapTable('destroy');
+			$('#datatab_power').bootstrapTable(initObj2);
+			addoneVisable();
+			viewflush();
+			 
+		}
+		//力量 表格删除行 -
+		function deleteTableRow_power(index){
+			extension.power_jsondata.splice(index, 1);
+			initObj2.data=extension.power_jsondata;
+			$('#datatab_power').bootstrapTable('destroy');
+			$('#datatab_power').bootstrapTable(initObj2);
+			addoneVisable();
+			viewflush();
+			 
+		}
+		//初始化0新增按钮控制 
+		function addoneVisable(){
+			//杆件
+			if(extension.rod_jsondata==undefined){
+				extension.rod_jsondata=[];
+			}
+			var jsondata=extension.rod_jsondata;
+			var count=jsondata.length;
+			if(count>0){
+				document.getElementById("addone").style.display="none";
+			}else{
+				document.getElementById("addone").style.display="inline";
+			}
+			//力量
+			if(extension.power_jsondata==undefined){
+				extension.power_jsondata=[];
+			}
+			var jsondata2=extension.power_jsondata;
+			var count2=jsondata2.length;
+			if(count2>0){
+				document.getElementById("addtwo").style.display="none";
+			}else{
+				document.getElementById("addtwo").style.display="inline";
+			}
+		}
+		//表格 input  select改变值
+		function οnchange_value(id,field,index){
+			var value=$('#'+id).val();
+			var jsonObj=extension.rod_jsondata[index];
+			for(var item in jsonObj){
+			   if(item==field){  //item 表示Json串中的属性，如'name'
+				   jsonObj[item]=value;//key所对应的value  赋值
+			    }
+		    }
+			viewflush();
+			canvasdarw();
+			echartsdarw();
+		}
+		function οnchange_value2(id,field,index){
+			var value=$('#'+id).val();
+			var jsonObj=extension.power_jsondata[index];
+			for(var item in jsonObj){
+			   if(item==field){  //item 表示Json串中的属性，如'name'
+				   jsonObj[item]=value;//key所对应的value  赋值
+			    }
+		    }
+			viewflush();
+			canvasdarw(); 
+			echartsdarw();
+		}
+		function clearCanvas()
+		{  
+			var canvas=document.getElementById("cavsElem");  
+			var cxt=canvas.getContext("2d");  
+			canvas.width = 3000;
+			canvas.height = 600;
+		}  
+		function viewflush(){
+		}
+		function gotop(){
+			document.getElementById('header').scrollIntoView();
+		}
+//////////////////////////////////////////////////////绘图 函数域/////////////////////////////////////////////////////////////////////////////
+///////////	canvas/////////////
+		//绘制全部	canvas图形
+		function canvasdarw(){
+			clearCanvas();
+			canvas_rod("conent");//borer  conent
+			canvas_x_y();
+			canvas_rod("borer");
+			canvas_power();
+			canvas_rod_side();
+		}
+		//绘制canvas直角坐标系
+		function canvas_x_y(){
+			var canvas = document.querySelector( '#cavsElem' );
+			var ctx = canvas.getContext( '2d' );
+
+			canvas.style.border = "1px solid #000";
+			ctx.font = "10px bold 黑体";
+			ctx.fillStyle = "black";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			//原点坐标（100，400）
+			var x0=10,y0=300;
+			//绘制网格
+			for(var i=0;i<=60;i++){
+				ctx.beginPath();
+				ctx.moveTo(0, 10*i);
+				ctx.lineTo( 2990,10*i);
+				ctx.strokeStyle = '#D1D1D1';
+				ctx.stroke();
+				var k=30-i
+				if(k%10==0){
+					ctx.fillText(k, x0, 10*i);
+				}
+				
+			}
+			for(var i=0;i<=300;i++){
+				ctx.beginPath();
+				ctx.moveTo(10*i,0);
+				ctx.lineTo(10*i,600);
+				ctx.strokeStyle = '#D1D1D1';
+				ctx.stroke();
+				if(i%10==0){
+					ctx.fillText(i, 10*i, 300);
+				}
+			}
+			//绘制x轴
+			ctx.beginPath();
+			ctx.moveTo(x0, y0);
+			ctx.lineTo( 2990,300);
+			ctx.strokeStyle = 'purple';
+			ctx.stroke();
+			
+			//绘制y轴
+			ctx.beginPath();
+			ctx.moveTo(x0, 10);
+			ctx.lineTo(x0,590);
+			ctx.strokeStyle = 'green';
+			ctx.stroke();
+			
+			ctx.font = "20px bold 黑体";
+			ctx.fillStyle = "#8B8B83";
+			ctx.fillText("X轴", 10*170, 320);
+			ctx.fillText("Y轴", 30, 20);
+		}
+		//绘制canvas杆件图形
+		function canvas_rod(type){//borer  conent
+			var canvas = document.querySelector( '#cavsElem' );
+			var ctx = canvas.getContext( '2d' );
+
+			var rod_jsondata=extension.rod_jsondata;
+			var slider=10;
+			for(var i=0;i<=rod_jsondata.length-1;i++){
+				
+				if(rod_jsondata[i].rod_type=='cylinder'||rod_jsondata[i].rod_type=='pipe'){//圆柱形  
+					// 绘制圆柱形
+					 var x0=10;
+					 var y0=300;
+					 var unit=10;
+					 var dL=rod_jsondata[i].rod_length
+					 var dW=rod_jsondata[i].rod_R*2
+					 ctx.strokeStyle="green";//描边矩形边框颜色为绿色
+					 ctx.lineWidth="2";
+					 if(type=="borer"){
+						ctx.strokeRect(x0+slider*unit,y0-(dW*unit)/2,dL*unit,dW*unit);//描边的矩形，只有边框
+					 }
+					 
+					 ctx.fillStyle="#B9D3EE";//填充矩形的颜色为蓝色  	#CDC9A5
+					 if(type=="conent"){
+						ctx.fillRect(x0+slider*unit,y0-(dW*unit)/2,dL*unit,dW*unit);//填充矩形，有颜色填充，默认是黑色
+					 }
+					 //调整游标
+					 slider=parseInt(slider)+parseInt(dL);
+				}
+				if(rod_jsondata[i].rod_type=='cuboid'){//矩形
+					// 绘制矩形
+					 var x0=10;
+					 var y0=300;
+					 ctx.strokeStyle="green";//描边矩形边框颜色为绿色
+					 ctx.lineWidth="2";
+					 if(type=="borer"){
+						ctx.strokeRect(x0+10*unit,y0-(10*unit)/2,20*unit,10*unit);//描边的矩形，只有边框
+					 }	
+					 ctx.fillStyle="#CDAF95";//填充矩形的颜色为蓝色  	#CDC9A5
+					 if(type=="conent"){
+						ctx.fillRect(x0+10*unit,y0-(10*unit)/2,20*unit,10*unit);//填充矩形，有颜色填充，默认是黑色
+					 }
+				}
+			}
+			
+		}
+		function canvas_rod_side(){
+			//container2parent
+			clear_canvas_rod_side_darw();
+			var container2parent = document.getElementById("container2parent");
+			for(var i=0;i<=extension.rod_jsondata.length-1;i++){
+				var div = document.createElement("div"); 
+				var type='cylinder';
+				type=extension.rod_jsondata[i].rod_type;
+				div.style="border: 1px solid #A9C9E2;width:200px;height:200px;float:left;background-image:url('./"+type+".png');background-size:100% 100%;"
+				var id="container2_"+i;
+				div.id=id;
+				container2parent.appendChild(div);
+				var container2 = document.getElementById(id);
+				var canvasdiv = document.createElement("canvas");
+				canvasdiv.width = 200;
+				canvasdiv.height = 200;
+				var id_canvas="container2_canvas_"+i;
+				canvasdiv.id=id_canvas;
+				container2.appendChild(canvasdiv);
+				var canvas = document.querySelector( '#'+id_canvas );
+				var ctx = canvas.getContext( '2d' );
+				//var img_cylinder = new Image();
+				//	img_cylinder.src = "./cylinder.png";
+				//	ctx.drawImage(img_cylinder, 0, 0,197,197); 
+					
+					ctx.font = "15px bold 黑体";
+					ctx.fillStyle = "black";
+					ctx.textAlign = "center";
+					ctx.textBaseline = "middle";
+					ctx.fillText(" 杆件编号："+i, 50, 15);
+				
+			}
+		}
+		function clear_canvas_rod_side_darw(){
+			var container2parent = document.getElementById("container2parent");
+			var childList = container2parent.childNodes;
+			childList=[];
+			container2parent.innerHTML="";
+		}
+		//绘制canvas受力图形
+		function canvas_power(){
+		
+			var canvas = document.querySelector( '#cavsElem' );
+			var ctx = canvas.getContext( '2d' );
+				ctx.font = "20px bold 黑体";
+				ctx.fillStyle = "black";
+				ctx.textAlign = "center";
+				ctx.textBaseline = "middle";
+
+			var power_jsondata=extension.power_jsondata;
+			for(var i=0;i<=power_jsondata.length-1;i++){
+				
+				if(power_jsondata[i].power_type=='point'){
+					var img_point = document.createElement('img');
+					img_point.src = "./sign2.png";
+					img_point.style.display="none";
+					var x1=power_jsondata[i].power_x1;
+					var k=x1*unit;
+					var amount=power_jsondata[i].power_amount;
+					document.body.appendChild(img_point);
+					
+					//window.onload = function(){
+					　　ctx.fillText(amount, k, 250);
+						ctx.drawImage(img_point, k-20, 250,50,50);  
+					//}
+					   
+				}
+				if(power_jsondata[i].power_type=='scope'){
+					var img_scope = document.createElement('img');
+					img_scope.src = "./sign1.png";
+					document.body.appendChild(img_scope);
+					img_scope.style.display="none";
+					var x1=power_jsondata[i].power_x1;
+					var x2=power_jsondata[i].power_x2;
+					var amount=power_jsondata[i].power_amount;
+					var w=2;
+					if(x2!=''){
+						w=x2;
+					 }
+					if(x2!=''&&x1!=''){
+						var f=x1*unit+(w-x1)*unit/2;
+						//window.onload = function(){
+							ctx.fillText(amount, f, 250-20);
+							ctx.drawImage(img_scope, x1*unit, 250,w*unit-x1*unit,70);
+						//}
+					}
+					
+				}
+			}
+			
+		}
+///////////	echarts/////////////
+	//绘制全部	echart图形
+		function echartsdarw(){
+			clearEchartsdarw();
+			echartsEveryBodydarw_side();
+			echartsEveryBodydarw();
+		}
+		function clearEchartsdarw(){
+			var echarts_container_parent_side = document.getElementById("echarts_container_parent_side");
+			var childList = echarts_container_parent_side.childNodes;
+			childList=[];
+			echarts_container_parent_side.innerHTML="";
+			var echarts_container_parent = document.getElementById("echarts_container_parent");
+			var childList = echarts_container_parent.childNodes;
+			childList=[];
+			echarts_container_parent.innerHTML="";
+		}
+		//绘制侧视图力的图像
+		function echartsEveryBodydarw_side(){
+			var echarts_container_parent = document.getElementById("echarts_container_parent_side");
+			for(var i=0;i<=extension.rod_jsondata.length-1;i++){
+				var div = document.createElement("div"); 
+					div.style="border: 1px solid #A9C9E2;width:500px;height:500px;overflow-x:scroll;float:left;";
+					var id="echarts_container_side_"+i;
+					div.id=id;
+					echarts_container_parent.appendChild(div);
+					var dom = document.getElementById(id);
+					var myChart = echarts.init(dom);
+					var R=extension.rod_jsondata[i].rod_R;
+					var B=extension.rod_jsondata[i].rod_W;
+					var L=extension.rod_jsondata[i].rod_length;
+					var type=extension.rod_jsondata[i].rod_type;
+					var resultArr=[];
+					
+					for(var j=0;j<=extension.power_jsondata.length-1;j++){
+						var poweritem=extension.power_jsondata[j];
+						resultArr.push(cylinder_compute_echarts_side(R,B,L,type,poweritem));
+					}
+					if(extension.power_jsondata.length>0&&extension.rod_jsondata.length>0){
+						//算结果
+						option.xAxis.data=resultArr[0].x_zhou
+						option.yAxis.data=resultArr[0].y_zhou
+						var arr=[];
+						arr=resultArr[0].data;
+						for(var k=0;k<=resultArr.length-1;k++){
+							var kitem=resultArr[k].data;
+							if(k!=0){
+								for(var m=0;m<=arr.length-1;m++){
+									arr[m][2]+=kitem[m][2];
+								}
+							}							
+						}
+						var datas=arr;
+						datas = datas.map(function (item) {
+							return [item[1], item[0], item[2] || '-'];
+						});	
+						option.series[0].data=datas
+						option.title.text="杆件编号："+i+" 内应力分布图"			
+						myChart.setOption(option, true);
+					}
+			}
+			
+		}
+		//绘制侧正图力的图像
+		function echartsEveryBodydarw(){
+			var echarts_container_parent = document.getElementById("echarts_container_parent");
+			for(var i=0;i<=extension.rod_jsondata.length-1;i++){
+				var div = document.createElement("div"); 
+					div.style="border: 1px solid #A9C9E2;width:500px;height:500px;overflow-x:scroll;float:left;";
+					var id="echarts_container_"+i;
+					div.id=id;
+					echarts_container_parent.appendChild(div);
+					var dom = document.getElementById(id);
+					var myChart = echarts.init(dom);
+					var M=0;
+					var R=extension.rod_jsondata[i].rod_R;
+					var B=extension.rod_jsondata[i].rod_W;
+					var L=extension.rod_jsondata[i].rod_length;
+					var type=extension.rod_jsondata[i].rod_type;
+					var resultArr=[];
+					for(var j=0;j<=extension.power_jsondata.length-1;j++){
+						var poweritem=extension.power_jsondata[j];
+						resultArr.push(cylinder_compute_echarts(R,B,L,type,poweritem));
+					}
+					if(extension.power_jsondata.length>0&&extension.rod_jsondata.length>0){
+						//算结果
+						option.xAxis.data=resultArr[0].x_zhou
+						option.yAxis.data=resultArr[0].y_zhou
+						var arr=[];
+						arr=resultArr[0].data;
+						for(var k=0;k<=resultArr.length-1;k++){
+							var kitem=resultArr[k].data;
+							if(k!=0){
+								for(var m=0;m<=arr.length-1;m++){
+									arr[m][2]+=kitem[m][2];
+								}
+							}							
+						}
+						var datas=arr;
+						datas = datas.map(function (item) {
+							return [item[1], item[0], item[2] || '-'];
+						});	
+						option.series[0].data=datas
+						option.title.text="杆件编号："+i+" 内应力分布图"			
+						myChart.setOption(option, true);
+					}
+				
+			}
+		}	
+////////////////////////////////////////////////////////分析受力函数域、////////////////////////////////////////////////
+		//具体点位受力分析函数
+		function force_analysis(){
+			var force_rod_No=document.getElementById("force_rod_No").value;
+			var force_x=document.getElementById("force_x").value;
+			var force_y=document.getElementById("force_y").value;
+			var force_z=document.getElementById("force_z").value;
+			
+			if(force_rod_No!=""&&force_x!=""&&force_y!=""&&force_z!=""){
+				document.getElementById("wait").style.display="block";
+				var resultMap=cylinder_compute(force_rod_No,force_x,force_y,force_z);
+				setTimeout(function(){
+					document.getElementById("wait").style.display="none";
+					alert("分析成功");
+					document.getElementById("dataspan").innerHTML=resultMap;
+					
+				},5000);
+			}else{
+				alert("分析失败:   请检查参数设置");
+			}
+			
+		}
+		//圆柱计算函数1
+		function cylinder_compute(force_rod_No,force_x,force_y,force_z){
+			//var IP=Math.PI*r*r*r*r/2
+			//范围  M(x-x1)r/IP
+			//点  2M/(Math.PI*Math.PI*Math.PI*Math.PI)*Math.sqrt(z*z+y*y)
+			var resultMap=0.00;
+			var power_jsondata=extension.power_jsondata;
+			var R=extension.rod_jsondata[parseInt(force_rod_No)].rod_R;
+			var b=extension.rod_jsondata[parseInt(force_rod_No)].rod_W;
+			var rod_type=extension.rod_jsondata[parseInt(force_rod_No)].rod_type;
+			var r=parseInt(R);  
+			var RX=1;
+				if(rod_type=='cylinder'){
+					RX=Math.PI*Math.pow(r,4)
+				}
+				if(rod_type=='pipe'){
+					RX=Math.PI*Math.pow(r,4)-Math.PI*Math.pow(b,4)
+				}
+				for(var i=0;i<=power_jsondata.length-1;i++){
+					if(extension.power_jsondata[i].power_type=='point'){
+						if(power_jsondata[i].power_x1>=force_x){
+							var M=parseInt(power_jsondata[i].power_amount);
+							resultMap+=2*M/(RX)*Math.sqrt(Math.pow(force_z,2)+Math.pow(force_y,2));
+						}
+					}
+					if(extension.power_jsondata[i].power_type=='scope'){
+						if(power_jsondata[i].power_x1>force_x){
+							var M=0;
+							resultMap+=2*M/(RX)*Math.sqrt(Math.pow(force_z,2)+Math.pow(force_y,2));
+						}
+						if(power_jsondata[i].power_x1<=force_x&&force_x<=power_jsondata[i].power_x2){
+							var M=parseInt(power_jsondata[i].power_amount);
+							resultMap+=2*M*(force_x-power_jsondata[i].power_x1)/(RX)*Math.sqrt(Math.pow(force_z,2)+Math.pow(force_y,2));
+						}
+						if(force_x>power_jsondata[i].power_x2){
+							var M=parseInt(power_jsondata[i].power_amount);
+							resultMap+=2*M*(power_jsondata[i].power_x2-power_jsondata[i].power_x1)/(RX)*Math.sqrt(Math.pow(force_z,2)+Math.pow(force_y,2));
+						}
+					}
+					
+				}
+			
+			return resultMap;
+		}
+		//圆柱计算函数2  side
+		function cylinder_compute_echarts_side(R,B,L,rod_type,poweritem){
+			
+			var r=parseInt(R);
+			var d=parseInt(L)/2;
+			var m=parseInt(poweritem.power_amount);
+			var type=poweritem.power_type;
+			var x1=poweritem.power_x1;
+			var x2=poweritem.power_x2;
+			var x_zhou=[];
+			var y_zhou=[];
+			var data=[];
+			var resultMap={
+				"x_zhou":x_zhou,
+				"y_zhou":y_zhou,
+				"data":data
+			};
+			var RX=1;
+				if(rod_type=='cylinder'){
+					RX=Math.PI*Math.pow(r,4)
+				}
+				if(rod_type=='pipe'){
+					var b=parseInt(B);
+					RX=Math.PI*Math.pow(r,4)-Math.PI*Math.pow(b,4)
+				}
+			//填满x ,y轴的刻度
+			for(var i=0;i<=r-1;i++){
+				x_zhou.push(""+i);
+				y_zhou.push(""+i);
+			}
+			//绘制力图像
+			for(var i=0.2*x_zhou.length;i<=0.6*x_zhou.length-1;i++){
+				for(var j=0.2*y_zhou.length;j<=0.6*y_zhou.length-1;j++){
+					var force_z=x_zhou[i]-0.4*x_zhou.length;
+					var force_y=y_zhou[j]-0.4*y_zhou.length;
+					var result=0;
+					if(type=='point'){
+						var M=parseInt(poweritem.power_amount);
+						result=2*M/(RX)*Math.sqrt(Math.pow(force_z,2)+Math.pow(force_y,2));
+					}
+					if(type=='scope'){
+						if(x1>d){
+							var M=0;
+							result=0;
+							
+						}
+						if(x1<=d&&d<=x2){
+							var M=parseInt(poweritem.power_amount);
+							result=2*M*(d-x1)/(RX)*Math.sqrt(Math.pow(force_z,2)+Math.pow(force_y,2));
+						}
+						if(d>x2){
+							var M=parseInt(poweritem.power_amount);
+							result=2*M*(x2-x1)/(RX)*Math.sqrt(Math.pow(force_z,2)+Math.pow(force_y,2));
+						}
+					}
+					if(r*r<force_z*force_z+force_y*force_y){
+						result=0;
+					}
+					if(rod_type=='pipe'){
+						var b=parseInt(B);
+						if(force_z*force_z+force_y*force_y<b*b){
+							result=0;
+						}
+					}
+					var item=[force_z,force_y,result];
+					data.push(item);
+				}
+			}
+			return resultMap;
+		}
+		//圆柱计算函数3  
+		function cylinder_compute_echarts(R,B,L,rod_type,poweritem){
+			
+			var r=parseInt(R);
+			//var IP=Math.PI*r*r*r*r/2
+			var l=parseInt(L);
+			var x_zhou=[];
+			var y_zhou=[];
+			var x1=poweritem.power_x1;
+			var x2=poweritem.power_x2;
+			var data=[];
+			var resultMap={
+				"x_zhou":x_zhou,
+				"y_zhou":y_zhou,
+				"data":data
+			};
+			var RX=1;
+				if(rod_type=='cylinder'){
+					RX=Math.PI*Math.pow(r,4)
+				}
+				if(rod_type=='pipe'){
+					var b=parseInt(B);
+					RX=Math.PI*Math.pow(r,4)-Math.PI*Math.pow(b,4)
+				}
+			//填满y轴的刻度
+			for(var i=0;i<=r-1;i++){
+				y_zhou.push(""+i);
+			}
+			//填满x轴的刻度
+			for(var i=0;i<=l-1;i++){
+				x_zhou.push(""+i);
+			}
+			for(var k=0;k<=x_zhou.length-1;k++){
+				var X=parseInt(x_zhou[k]);
+				//绘制力图像
+				for(var n=0;n<=y_zhou.length-1;n++){
+					var force_y=parseInt(y_zhou[n]);
+					var result=0;
+					if(poweritem.power_type=='point'){
+						//if(poweritem.power_x1<=(X)){
+							//result=M*force_y/IP;
+							var M=parseInt(poweritem.power_amount);
+							result=2*M/(RX)*force_y;
+						//}
+					}
+					if(poweritem.power_type=='scope'){
+						if(poweritem.power_x1>(X)){
+							var M=0;
+							//result=0;
+							result=0;
+						}
+						if(poweritem.power_x1<=(X)&&poweritem.power_x2>=(X)){
+							var M=parseInt(poweritem.power_amount);
+							//result=M*force_y/IP*(X-poweritem.power_x1);
+							result=2*M*(X-x1)/(RX)*force_y;
+						}
+						if(poweritem.power_x2<(X)){
+							var M=parseInt(poweritem.power_amount);
+							//result=M*force_y/IP*(poweritem.power_x2-poweritem.power_x1);
+							result=2*M*(x2-x1)/(RX)*force_y;
+						}
+					}
+					if(rod_type=='pipe'){
+						var b=parseInt(B);
+						if(X<b){
+							result=0;
+						}
+					}
+					var item=[force_y,X,result];
+					data.push(item);
+				}
+				
+			}
+			return resultMap;
+		}
+/*4.外部调用   表单 初始化/提交 方法*/
+		//html初始化方法  html_init
+		addoneVisable();
+		initObj.data=extension.rod_jsondata;
+		initObj2.data=extension.power_jsondata;
+		$('#datatab_rod').bootstrapTable(initObj);
+		$('#datatab_power').bootstrapTable(initObj2);
+		viewflush();
+		canvasdarw();
+		//echartsdarw();
+  </script>
+</html>
